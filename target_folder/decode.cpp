@@ -70,13 +70,43 @@ string t[5];
 // 精确的graph 和 突变的序列 找出最大相似度 以及 位置
 // 精确的graph 和 突变的序列 找出所有>=base 所有位置
 string query;
-int dp[10010][10010];
+
+double res;
+string res_str;
+double base = 0.8;
+vector<pair<string, double>> vec;
+int dp[100][100];
+string last;
 void calcScore(const string &s)
 {
-    // cout << s.size() << " " << query.size() << endl;
-    // int dp[s.size() + 1][query.size() + 1];
+    if (s.substr(0, last.size()) == last && last.size() + 1 == s.size())
+    {
+        int i = s.size();
+        // cout << last << " " << s << endl;
+        for (int j = 1; j <= query.size(); j++)
+        {
+            if (i >= 1)
+                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j]);
+            if (j >= 1)
+                dp[i][j] = min(dp[i][j - 1] + 1, dp[i][j]);
+            if (s[i - 1] == query[j - 1])
+                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
+        }
+        if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) > res)
+        {
+            res = max(res, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()));
+            res_str = s;
+        }
+        if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) >= base)
+        {
+            vec.push_back({s, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size())});
+        }
+        last = s;
+        return;
+    }
+    last = s;
     memset(dp, 0x3f, sizeof dp);
-    for (int i = 0; i <= s.size(); i++)
+    for (int i = 0; i <= 99; i++)
         dp[i][0] = i;
     for (int i = 0; i <= query.size(); i++)
         dp[0][i] = i;
@@ -90,8 +120,11 @@ void calcScore(const string &s)
             if (s[i - 1] == query[j - 1])
                 dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
         }
-
-    printf("%.2lf\n", 1 - 1.0 * dp[s.size() - 1][query.size() - 1] / (int)max(s.size(), query.size()));
+    if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) > res)
+    {
+        res = max(res, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()));
+        res_str = s;
+    }
 }
 bool check_on_fa(const string &path)
 {
@@ -102,17 +135,31 @@ bool check_on_fa(const string &path)
 }
 void dfs(string s, string path, int pre)
 {
-    if (!check_on_fa(path))
-    {
-        cout << "invalid path!!" << endl;
-        return;
-    }
-    calcScore(path);
     for (auto ne : mp[pre][s])
     {
         string t = id2s[ne.second];
         if (ne.first == '-')
             reverse(t.begin(), t.end());
+        if (res > 0.9)
+            return;
+        for (int i = path.size() - 1; i >= 0; i--)
+        {
+            if (path.size() - i > query.size() + 5)
+                break;
+            string tmp = path.substr(i);
+            for (int j = 0; j < t.size(); j++)
+            {
+                tmp += t[j];
+                if (tmp.size() < query.size() - 5)
+                    continue;
+                if (tmp.size() > query.size() + 5)
+                    break;
+                if (res > 0.9)
+                    return;
+
+                calcScore(tmp);
+            }
+        }
         dfs(ne.second, path + t, ne.first == '-' ? 1 : 0);
     }
 }
@@ -150,16 +197,16 @@ std::string string_variation(std::string query)
 // 主函数
 int main()
 {
-    // int result = system("python3 aa.py");
-    // assert(result == 0);
-    int result = system("./bb/minigraph/minigraph -cxggs -L 0 -d 0 -l 0 ./bb/minigraph/1.fa ./bb/minigraph/2.fa ./bb/minigraph/3.fa ./bb/minigraph/4.fa  ./bb/minigraph/5.fa > ./bb/minigraph/o.gfa");
+    int result = system("python3 ./aa.py");
+    assert(result == 0);
+    result = system("./minigraph1/minigraph -cxggs -L 0 -d 0 -l 0 ./minigraph1/1.fa ./minigraph1/2.fa ./minigraph1/3.fa ./minigraph1/4.fa ./minigraph1/5.fa   > ./minigraph1/o.gfa");
     assert(result == 0);
     std::string line;
-    std::ifstream fa_file1("./bb/minigraph/1.fa");
-    std::ifstream fa_file2("./bb/minigraph/2.fa");
-    std::ifstream fa_file3("./bb/minigraph/3.fa");
-    std::ifstream fa_file4("./bb/minigraph/4.fa");
-    std::ifstream fa_file5("./bb/minigraph/5.fa");
+    std::ifstream fa_file1("./minigraph1/1.fa");
+    std::ifstream fa_file2("./minigraph1/2.fa");
+    std::ifstream fa_file3("./minigraph1/3.fa");
+    std::ifstream fa_file4("./minigraph1/4.fa");
+    std::ifstream fa_file5("./minigraph1/5.fa");
 
     if (fa_file1.is_open())
     {
@@ -212,12 +259,11 @@ int main()
         cout << "open fa5 error" << endl;
     }
     cout << "successs!!!" << endl;
-    query = t[0].substr(0, 76);
-
+    query = t[1].substr(100, 76);
     query = string_variation(query);
-    cout << t[0].substr(0, 76) << endl;
+    cout << t[1].substr(100, 76) << endl;
     cout << query << endl;
-    std::ifstream gfa_file("./bb/minigraph/o.gfa"); // 替换为您的GFA文件路径
+    std::ifstream gfa_file("./minigraph1/o.gfa"); // 替换为您的GFA文件路径
     vector<string> strs;
 
     if (gfa_file.is_open())
@@ -254,12 +300,46 @@ int main()
     for (auto x : strs)
     {
         // cout << "x is " << x << endl;
+        cout << res << endl;
         string t1 = id2s[x];
+
+        for (int i = 0; i < t1.size(); i++)
+        {
+            string tmp = "";
+            for (int j = i; j < t1.size(); j++)
+            {
+                tmp += t1[j];
+                if (tmp.size() < query.size() - 5)
+                    continue;
+                if (tmp.size() > query.size() + 10)
+                    break;
+                calcScore(tmp);
+            }
+        }
         dfs(x, t1, 0);
         string t = t1;
         reverse(t.begin(), t.end());
-        // cout << "t is " << t << endl;
+        for (int i = 0; i < t.size(); i++)
+        {
+            string tmp = "";
+            for (int j = i; j < t.size(); j++)
+            {
+                tmp += t[j];
+                if (tmp.size() < query.size() - 5)
+                    continue;
+                if (tmp.size() > query.size() + 10)
+                    break;
+                calcScore(tmp);
+            }
+        }
         dfs(x, t, 1);
     }
+    cout << "max score is " << res << endl;
+    cout << "str is " << res_str << endl;
+    sort(vec.begin(), vec.end(), [&](pair<string, double> a, pair<string, double> b)
+         { return a.second > b.second; });
+    for (auto j : vec)
+        cout
+            << j.first << " " << j.second << endl;
     return 0;
 }

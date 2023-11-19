@@ -5,9 +5,9 @@ dna_bases = "ATCG"
 
 for i in range(20):
     print(str(i)+'.'+'fa' ,end=' ')
-# 生成1e5个随机的DNA序列
+#  生成1e5个随机的DNA序列
 import random
-sequence_length = 1500 # 每个序列的长度
+sequence_length = 2000 # 每个序列的长度
 
 sequences = [[] for i in range(20)]
 for i in range(20):
@@ -29,7 +29,7 @@ for i in range(1,6):
 name = '>HS#NC_012920.'
 
 for i in range(20):
-    fn = './bb/minigraph/'+str(i)+".fa"
+    fn = '/home/yqmao/data/My_proj/target_folder/minigraph1/'+str(i)+".fa"
     with open(fn, "w") as file:
         file.write(name + str(i) +  "\n")
         for i, sequence in enumerate(sequences[i], start=1):
