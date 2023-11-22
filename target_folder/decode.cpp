@@ -50,7 +50,7 @@ Link parseLink(const std::string &line)
     Link link;
     std::string segment;
     std::vector<std::string> seglist;
-
+    cout << line << endl;
     while (std::getline(ss, segment, '\t'))
     {
         seglist.push_back(segment);
@@ -133,7 +133,7 @@ bool check_on_fa(const string &path)
             return true;
     return false;
 }
-void dfs(string s, string path, int pre)
+void dfs(string s, string path, int pre, string first_string)
 {
     for (auto ne : mp[pre][s])
     {
@@ -142,7 +142,7 @@ void dfs(string s, string path, int pre)
             reverse(t.begin(), t.end());
         if (res > 0.9)
             return;
-        for (int i = path.size() - 1; i >= 0; i--)
+        for (int i = first_string.size() - 1; i >= 0; i--)
         {
             if (path.size() - i > query.size() + 5)
                 break;
@@ -160,7 +160,7 @@ void dfs(string s, string path, int pre)
                 calcScore(tmp);
             }
         }
-        dfs(ne.second, path + t, ne.first == '-' ? 1 : 0);
+        dfs(ne.second, path + t, ne.first == '-' ? 1 : 0, first_string);
     }
 }
 std::string string_variation(std::string query)
@@ -199,7 +199,7 @@ int main()
 {
     int result = system("python3 ./aa.py");
     assert(result == 0);
-    result = system("./minigraph1/minigraph -cxggs -L 0 -d 0 -l 0 ./minigraph1/1.fa ./minigraph1/2.fa ./minigraph1/3.fa ./minigraph1/4.fa ./minigraph1/5.fa   > ./minigraph1/o.gfa");
+    result = system("./minigraph1/minigraph -cxggs -L 5 -d 5 -l 0 ./minigraph1/1.fa ./minigraph1/2.fa ./minigraph1/3.fa ./minigraph1/4.fa ./minigraph1/5.fa   > ./minigraph1/o.gfa");
     assert(result == 0);
     std::string line;
     std::ifstream fa_file1("./minigraph1/1.fa");
@@ -311,12 +311,12 @@ int main()
                 tmp += t1[j];
                 if (tmp.size() < query.size() - 5)
                     continue;
-                if (tmp.size() > query.size() + 10)
+                if (tmp.size() > query.size() + 5)
                     break;
                 calcScore(tmp);
             }
         }
-        dfs(x, t1, 0);
+        dfs(x, t1, 0, t1);
         string t = t1;
         reverse(t.begin(), t.end());
         for (int i = 0; i < t.size(); i++)
@@ -327,12 +327,12 @@ int main()
                 tmp += t[j];
                 if (tmp.size() < query.size() - 5)
                     continue;
-                if (tmp.size() > query.size() + 10)
+                if (tmp.size() > query.size() + 5)
                     break;
                 calcScore(tmp);
             }
         }
-        dfs(x, t, 1);
+        dfs(x, t, 1, t);
     }
     cout << "max score is " << res << endl;
     cout << "str is " << res_str << endl;
