@@ -24,7 +24,6 @@ for i in range(1,6):
         sequences[i][j] = random.choice(dna_bases)
     # for j in range(4050,4505):
     #     sequences[i][j] = random.choice(dna_bases)
-
 # 将DNA序列写入fa文件
 name = '>HS#NC_012920.'
 

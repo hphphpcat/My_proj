@@ -70,69 +70,12 @@ string t[5];
 // 精确的graph 和 突变的序列 找出最大相似度 以及 位置
 // 精确的graph 和 突变的序列 找出所有>=base 所有位置
 string query;
-
 double res;
 string res_str;
 double base = 0.8;
 vector<pair<string, double>> vec;
 int dp[100][100];
 string last;
-void calcScore(const string &s)
-{
-    if (s.substr(0, last.size()) == last && last.size() + 1 == s.size())
-    {
-        int i = s.size();
-        // cout << last << " " << s << endl;
-        for (int j = 1; j <= query.size(); j++)
-        {
-            if (i >= 1)
-                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j]);
-            if (j >= 1)
-                dp[i][j] = min(dp[i][j - 1] + 1, dp[i][j]);
-            if (s[i - 1] == query[j - 1])
-                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
-        }
-        if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) > res)
-        {
-            res = max(res, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()));
-            res_str = s;
-        }
-        if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) >= base)
-        {
-            vec.push_back({s, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size())});
-        }
-        last = s;
-        return;
-    }
-    last = s;
-    memset(dp, 0x3f, sizeof dp);
-    for (int i = 0; i <= 99; i++)
-        dp[i][0] = i;
-    for (int i = 0; i <= query.size(); i++)
-        dp[0][i] = i;
-    for (int i = 1; i <= s.size(); i++)
-        for (int j = 1; j <= query.size(); j++)
-        {
-            if (i >= 1)
-                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j]);
-            if (j >= 1)
-                dp[i][j] = min(dp[i][j - 1] + 1, dp[i][j]);
-            if (s[i - 1] == query[j - 1])
-                dp[i][j] = min(dp[i][j], dp[i - 1][j - 1]);
-        }
-    if (1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()) > res)
-    {
-        res = max(res, 1 - 1.0 * dp[s.size()][query.size()] / (int)max(s.size(), query.size()));
-        res_str = s;
-    }
-}
-bool check_on_fa(const string &path)
-{
-    for (int i = 0; i < 5; i++)
-        if (t[i].find(path) != string::npos)
-            return true;
-    return false;
-}
 void dfs(string s, string path, int pre, string first_string)
 {
     for (auto ne : mp[pre][s])

@@ -1,3 +1,10 @@
+x=1
+i=1
+while i<=128:
+    i+=i
+    x+=x
+print(x)
+
 with open("bb/minigraph/test/MT-human.fa", "r") as file:
     gene_fragments = file.readlines()
 
